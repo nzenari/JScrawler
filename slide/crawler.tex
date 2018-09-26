@@ -1,0 +1,210 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{dirtree}
+
+
+\usetheme{CambridgeUS}
+
+\begin{document}
+\title{Crawler}
+\date{26 settembre 2018}
+\author[]{Valentina Ceoletta VR407794\\Mattia Zanotti VR411086\\Nicol\`o Zenari VR412613}
+
+\begin{frame}
+	\maketitle
+\end{frame}
+
+\begin{frame}
+	\tableofcontents
+\end{frame}
+
+\section{Introduzione}
+\begin{frame}
+	\frametitle{Introduzione}
+Il progetto consiste nell' esplorare il web con l'obiettivo di raccogliere codice JavaScript considerato malevolo. In generale i passi eseguiti dal programma sono:
+\begin{enumerate}
+	\item collezione degli URL dalla comunit\'a di \textit{HpHosts};
+	\item download delle pagine web e delle relative risorse;
+	\item interrogazione di \textit{Virus Total} e \textit{Google Safe Browsing}.
+\end{enumerate}
+\end{frame}
+
+\section{File di configurazione}
+\begin{frame}
+	\frametitle{File di configurazione}
+Il file \textit{config.json} contiene tutte le informazioni necessarie per il corretto funzionamento del progetto.
+\end{frame}
+
+\section{getHosts}
+\begin{frame}
+	\frametitle{getHosts}
+Lo script \textit{getHosts} richiede e parserizza le pagine HTML di HpHosts. L'obiettivo viene raggiunto in due passi principali:
+\begin{enumerate}
+	\item creazione delle thread per scaricare le pagine di \textit{HpHosts};
+	\item parserizzazione e raccolta delle informazioni necessarie.
+\end{enumerate}
+\end{frame}
+
+\subsection{Fase 1}
+\begin{frame}
+	\frametitle{Fase 1}
+Dato il cospicuo numero di pagine che solitamente deve essere scaricato, al fine di velocizzare tale processo si creano 
+tante thread quante il numero di core della macchina host; ogni thread si occupa del download di specifiche pagine. Esse terminano se:
+\begin{itemize}
+\item terminano le pagine di loro competenza;
+\item in una pagina è presente un host già trattato;
+\item la data di pubblicazione è antecedente o seguente il periodo di interesse.
+\end{itemize}
+\end{frame}
+
+\subsection{Fase 2}
+\begin{frame}
+	\frametitle{Fase 2}
+\textit{HpHosts} organizza gli host all'interno di tabelle HTML. Da queste tabelle, lo script estrapola le informazioni
+relative ad ogni host e, se corrispondono ai criteri desiderati, vengono salvate all'interno di un file Json.
+
+Le informazioni estrapolate sono \textit{hostname}, \textit{IP}, \textit{classe}, \textit{data di pubblicazione} su hpHosts e \textit{data di aggiunta}.
+\end{frame}
+
+\subsection{Struttura delle directory}
+\begin{frame}
+	\frametitle{Struttura dell directory}
+	\begin{columns}\label{dir}
+		\begin{column}{0.4\textwidth}
+		Alla fine dello script si genera la seguente struttura a cartelle (base per i successivi script):
+		\end{column}
+		\begin{column}{0.4\textwidth}
+		\dirtree{%
+			.1 out.
+			.2 hosts.
+			.3 hostname1.
+			.4 info.json.
+			.3 hostname2.
+			.4 info.json.
+			.3 ....
+			}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\section{Crawler}
+\begin{frame}
+	\frametitle{Crawler}
+Si utilizza \textit{Heritrix} nella versione 3.1.1. con la modifica del file di configurazione nei seguenti punti:
+\begin{enumerate}
+\item caricamento della lista di host da file \textit{seeds.txt};
+\item applicazione di regole in cascata per accettazione delle pagine \textsc{HTML} e \textsc{JS} con profondità a 1 \textsf{hops};
+\item estrazione di pagine HTML,HTTP e JS;
+\item salvataggio del crawling nel formato \textit{.warc}.
+\end{enumerate}
+\end{frame}
+
+\subsection{warcExtractor}
+\begin{frame}
+\frametitle{warcExtractor}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+		Per ogni host scaricato con successo:
+		\begin{itemize}
+		\item si crea una directory \textit{heritrix} contenente i file associati;
+		\item si aggiorna il file \textit{seeds.txt} per un successivo crawling;
+		\item creazione dei file \textit{bodyN.json} per il modulo GSB.
+		\end{itemize}
+		Nel caso di insuccesso, la cartella dell'host generato in \ref{dir} verrà rimossa.
+		\end{column}
+		\begin{column}{0.4\textwidth}
+		\dirtree{%
+			.1 out.
+			.2 hosts.
+			.3 hostname1.
+			.4 info.json.
+			.4 heritrix.
+			.3 ....
+			}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\subsection{jsExtractor}
+\begin{frame}
+\frametitle{jsExtractor}
+	\begin{columns}
+		\begin{column}{0.4\textwidth}
+		Creazione di una directory in cui inserire il codice \textsc{JavaScript} presente nei file estratti dal crawler.
+		\end{column}
+		\begin{column}{0.4\textwidth}
+		\dirtree{%
+			.1 out.
+			.2 hosts.
+			.3 hostname1.
+			.4 info.json.
+			.4 heritrix.
+			.5 javascript.
+			.3 ....
+			}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+
+\section{Google Safe Browsing}
+\begin{frame}
+\frametitle{Google Safe Browsing}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+		Utilizzando i file \textit{bodyN.json} (organizzati come mostrato in figura), uno script Python interroga GSB. 
+		\end{column}
+		\begin{column}{0.4\textwidth}
+		\dirtree{%
+			.1 out.
+			.2 hosts.
+			.2 gsb.
+			.3 body0.json.
+			.3 body1.json.
+			.3 ....
+			}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\section{Virus Total}
+\begin{frame}
+\frametitle{Virus Total}
+Utilizzando le API pubbliche viene interrogato Virus Total che fornisce il risultato dell'analisi in due passi:
+\begin{enumerate}
+	\item richiesta \textit{post http} con la quale viene inviato l' URL da analizzare;
+	\item richiesta \textit{get http} necessaria per ottenere il report dell'analisi.
+\end{enumerate}
+\end{frame}
+
+\section{Tempi di esecuzione}
+\begin{frame}
+\frametitle{Tempi di esecuzione}
+\begin{itemize}
+      \item \textbf{getHosts}: circa 7/10 secondi per pagina
+      \item \textbf{Crawler}: al primo avvio molte ore se non giorni, tempo minore negli avvii successivi
+      \item \textbf{warcExtractor} e \textbf{jsExtractor}: esecuzione nell'ordine di minuti
+      \item \textbf{GSB}: esecuzione nell'ordine di qualche secondo
+      \item \textbf{VT}: esecuzione nell'ordine di qualche ora
+   \end{itemize}
+   \end{frame}
+
+\section{Statistiche}
+\begin{frame}
+\frametitle{Statistiche}
+\begin{itemize}
+      \item \textbf{GSB}: 11/288 host taggati (periodo 13 - 31 agosto);
+      \item \textbf{VT}: 51/288 host non malevoli (periodo 13 - 31 agosto);
+      \item \textbf{eval}: su 288 host collezionati sono stati generati 4494 file JavaScript dei quali 5 presentano eval espliciti e 4489 impliciti.
+   \end{itemize}
+   \end{frame}
+
+\section{Codice}
+\begin{frame}
+\frametitle{Codice}
+Codice disponibile su GitHub: \url{https://github.com/nzenari/JScrawler.git}
+   \end{frame}
+\end{document}

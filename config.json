@@ -1,0 +1,40 @@
+{
+    "out_dir_path":"out/",
+    "hosts_dir_path":"hosts/",
+    "heritrix_dir_path":"heritrix/",
+    "javascript_dir_path":"javascript/",
+    "GSB_dir":"gsb/",
+    "hosts_json_filename":"hosts.json",
+    "host_json_filename":"info.json",
+    "seeds_filename":"seeds.txt",
+    "host_file_url":"https://hosts-file.net/?s=Browse&f={0}&o=DESC&page={1}",
+    "download_from_date":"13/08/2018 00:00:00",
+    "download_to_date":"23/08/2018 23:59:59",
+    "vt_requests_url":"https://www.virustotal.com/vtapi/v2/url/scan",
+    "vt_report_url":"https://www.virustotal.com/vtapi/v2/url/report",
+    "vt_api_key":"--- INSERIRE LA CHIAVE DI VIRUS TOTAL ---",
+    "vt_error_file":"vt_error.txt",
+    "class_to_download":[
+        "EMD"
+    ],
+    "json_GSB_filename":"body",
+    "GSB_url":"https://safebrowsing.googleapis.com/v4/threatMatches:find",
+    "GSB_key":"--- INSERIRE LA CHIAVE DI GOOGLE SAFE BROWSING ---",
+    "GSB_clientId":"yourcompanyname",
+    "GSB_clientVersion":"1.5.2",
+    "GSB_threatTypes":[
+        "MALWARE",
+        "SOCIAL_ENGINEERING",
+        "THREAT_TYPE_UNSPECIFIED",
+        "UNWANTED_SOFTWARE",
+        "POTENTIALLY_HARMFUL_APPLICATION"
+    ],
+    "GSB_platformTypes":[
+        "WINDOWS",
+        "LINUX",
+        "OSX"
+    ],
+    "GSB_threatEntryTypes":[
+        "URL"
+    ]
+}
