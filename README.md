@@ -70,3 +70,6 @@ Tutti i risultati sono contenuti all'interno della cartella **out**. Tale direct
 * Valentina Ceoletta - valentina.ceoletta@studenti.univr.it
 * Mattia Zanotti - mattia.zanotti@studenti.univr.it
 * Nicolò Zenari - nicolo.zenari@studenti.univr.it
+
+## Valutazione
+26/26
